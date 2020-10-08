@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -15,6 +16,8 @@ namespace DHCP_simulation
         static Dictionary<string, string> dhcp = new Dictionary<string, string>();
 
         static Dictionary<string, string> reserved = new Dictionary<string, string>();
+
+        static List<string> commands = new List<string>();
 
 
         static string CimEggyelNo(string cim)
@@ -60,17 +63,17 @@ namespace DHCP_simulation
                 Console.WriteLine(ex.Message);
             }
         }
-        static void BeolvasExcluded()
+        static void BeolvasList(List<string> l, string filename)
         {
             try
             {
-                StreamReader file = new StreamReader("excluded.csv");
+                StreamReader file = new StreamReader(filename);
 
                 try                                                      //megpróbálja végigvinni a filet
                 {
                     while (!file.EndOfStream)
                     {
-                        excluded.Add(file.ReadLine());
+                        l.Add(file.ReadLine());
                     }
                 }
                 catch (Exception expection)                              //ha valami hiba van, azt kiírja
@@ -92,18 +95,20 @@ namespace DHCP_simulation
 
         static void Main(string[] args)
         {
-            BeolvasExcluded();
+            BeolvasList(excluded, "excluded.csv");
+            BeolvasList(commands, "test.csv");
             BeolvasDictionary(dhcp, "dhcp.csv");
             BeolvasDictionary(reserved, "reserved.csv");
 
-            foreach (var e in reserved)
+
+            foreach (var e in commands)
             {
                 Console.WriteLine(e);
             }
 
             //Console.WriteLine(CimEggyelNo("192.168.10.255"));
 
-            Console.WriteLine("\nVége...");
+            Console.WriteLine("\n.......................................................................................................................");
 
             Console.ReadLine();
         }
