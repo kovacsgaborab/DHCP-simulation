@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -10,6 +11,11 @@ namespace DHCP_simulation
     class Program
     {
         static List<string> excluded = new List<string>();
+
+        static Dictionary<string, string> dhcp = new Dictionary<string, string>();
+
+        static Dictionary<string, string> reserved = new Dictionary<string, string>();
+
 
         static string CimEggyelNo(string cim)
         {
@@ -34,9 +40,25 @@ namespace DHCP_simulation
             return adat[0] + '.' + adat[1] + '.' + adat[2] + '.' + Convert.ToString(okt4);
         }
 
-        static void BeolvasReserved()
+        static void BeolvasDictionary(Dictionary<string, string> d, string filenev)
         {
+            try
+            {
+                StreamReader file = new StreamReader(filenev);
 
+                while (!file.EndOfStream)
+                {
+                    string[] adat = file.ReadLine().Split(';');
+
+                    d.Add(adat[0], adat[1]);
+                }
+
+                file.Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
         }
         static void BeolvasExcluded()
         {
@@ -71,11 +93,13 @@ namespace DHCP_simulation
         static void Main(string[] args)
         {
             BeolvasExcluded();
+            BeolvasDictionary(dhcp, "dhcp.csv");
+            BeolvasDictionary(reserved, "reserved.csv");
 
-            //foreach (var e in excluded)
-            //{
-            //    Console.WriteLine(e);
-            //}
+            foreach (var e in reserved)
+            {
+                Console.WriteLine(e);
+            }
 
             //Console.WriteLine(CimEggyelNo("192.168.10.255"));
 
