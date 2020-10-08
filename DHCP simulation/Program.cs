@@ -4,6 +4,7 @@ using System.ComponentModel.Design;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -93,6 +94,71 @@ namespace DHCP_simulation
             }
         }
 
+
+        static void Feladatok()
+        {
+            foreach (var commmand in commands)
+            {
+                Feladat(commmand);
+            }
+        }
+        static void Feladat(string parancs)
+        {
+
+            /*
+             * megnézzük, hogy request-e
+             *              *          
+             * ki kell szedni a MAC címet a parancsból
+             */
+
+            
+
+            if (parancs.Contains("request"))
+            {
+                string[] a = parancs.Split(';');
+                string mac = a[1];
+
+                if (dhcp.ContainsKey(mac))
+                {
+                    Console.WriteLine($"DHCP {mac} --> {dhcp[mac]}");
+                }
+                else
+                {
+                    if (reserved.ContainsKey(mac))
+                    {
+                        Console.WriteLine($"Res.: {mac} --> {reserved[mac]}");
+                        dhcp.Add(mac, reserved[mac]);
+                    }
+                    else
+                    {
+                        string indulo = "192.168.10.100";
+                        int okt4 = 100;
+
+                        while (okt4 < 200 && (dhcp.ContainsValue(indulo) || reserved.ContainsValue(indulo) || excluded.Contains(indulo)))
+                        {
+                            okt4++;
+                            indulo = CimEggyelNo(indulo);
+                        }
+
+                        if (okt4 < 200)
+                        {
+                            Console.WriteLine($"Kiosztott: {mac} --> {indulo}");
+                            dhcp.Add(mac, indulo);
+                        }
+                        else
+                        {
+                            Console.WriteLine($"{mac} nincs IP");
+                        }
+                    }
+                }
+            }
+            else
+            {
+                Console.WriteLine("Nem oké");
+            }
+        }
+
+
         static void Main(string[] args)
         {
             BeolvasList(excluded, "excluded.csv");
@@ -101,10 +167,13 @@ namespace DHCP_simulation
             BeolvasDictionary(reserved, "reserved.csv");
 
 
-            foreach (var e in commands)
-            {
-                Console.WriteLine(e);
-            }
+            //foreach (var e in commands)
+            //{
+            //    Console.WriteLine(e);
+            //}
+
+            Feladatok();
+            
 
             //Console.WriteLine(CimEggyelNo("192.168.10.255"));
 
